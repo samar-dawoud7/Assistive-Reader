@@ -35,7 +35,7 @@ const ImageUploader = ({ onImageSelect }) => {
     formData.append("image", file);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/extract-text", {
+      const res = await fetch("http://127.0.0.1:8000/extract-text", {
         method: "POST",
         body: formData
       });
@@ -78,6 +78,22 @@ const ImageUploader = ({ onImageSelect }) => {
             />
           </label>
         </div>
+
+            {/* Extracted text section */}
+        <div className="mt-3">
+        <h5>Extracted Text:</h5>
+        {extractedText ? (
+          <textarea
+            className="form-control"
+            rows={8}
+            value={extractedText}
+            readOnly
+          />
+        ) : (
+          <p className="text-muted">No text extracted yet.</p>
+        )}
+      </div>
+
       </div>
     </div>
   );

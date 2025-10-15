@@ -2,4 +2,4 @@ flask
 pytesseract
 pillow
 gTTS
-flask-co
+flask-cors

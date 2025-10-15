@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # ← import CORS
+from flask_cors import CORS
 from PIL import Image
 import pytesseract
-import os
+
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # ← enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)  # enable CORS for all methods
 
-# Endpoint to handle image upload and return extracted text
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
+
 @app.route("/extract-text", methods=["POST"])
 def extract_text():
     if 'image' not in request.files:
@@ -15,10 +16,7 @@ def extract_text():
 
     image_file = request.files['image']
     img = Image.open(image_file)
-
-    # OCR: extract text
     text = pytesseract.image_to_string(img)
-
     return jsonify({"text": text})
 
 @app.route("/ping")
@@ -26,4 +24,4 @@ def ping():
     return "Pong!"
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8000)  # ← your custom port
+    app.run(debug=True, port=8000)  # make sure this port matches React fetch
