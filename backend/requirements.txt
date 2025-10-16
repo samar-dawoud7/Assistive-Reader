@@ -1,0 +1,16 @@
+# --- FastAPI (main backend framework) ---
+fastapi
+uvicorn
+python-multipart
+
+# --- Google Cloud Vision AI (OCR + language detection) ---
+google-cloud-vision
+
+pillow
+
+# --- CORS & Utilities ---
+flask-cors
+requests
+
+# --- Text-to-Speech (if using gTTS for local voice) --- we may use it later
+gTTS

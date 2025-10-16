@@ -1,0 +1,61 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.json
+
+# Node & Python ignored files
+
+# Node
+front/node_modules/
+front/build/
+front/.next/
+front/.pnp
+front/.pnp.js
+
+# Python
+back/__pycache__/
+back/*.pyc
+back/*.pyo
+back/*.pyd
+back/.venv/
+back/venv/
+back/env/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.json  # credentials or API key files (e.g. Google Cloud creds)
+
+# System files
+.DS_Store
+Thumbs.db
