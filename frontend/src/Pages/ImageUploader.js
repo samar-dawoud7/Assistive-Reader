@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import './Style/style.css';
+import '../Style/style.css';
 
 const ImageUploader = () => {
   const [image, setImage] = useState(null);
@@ -103,9 +103,9 @@ const ImageUploader = () => {
   };
 
   return (
-    <div className="container my-5">
-      <div className="card shadow-sm p-4 mx-auto" style={{ maxWidth: "450px" }}>
-        <h2 className="card-title text-center mb-2">Upload an Image</h2>
+    <div className="container card  w-50 my-5 shadow-sm border-0 rounded ">
+      <div className=" p-4 mx-auto" style={{width:"100%",height:"100%" }}>
+        <h2 className=" text-center mb-2">Upload an Image</h2>
         <p className="text-center text-muted mb-3">
           Examples: Book page, street sign, product label
         </p>
@@ -126,8 +126,8 @@ const ImageUploader = () => {
           )}
         </div>
 
-        <div className="d-grid mb-3">
-          <label className="btn btn-primary">
+        <div className=" mb-3">
+          <label className="btn btn-primary ">
             Choose Image
             <input
               type="file"
