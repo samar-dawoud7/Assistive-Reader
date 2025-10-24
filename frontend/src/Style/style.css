@@ -1,0 +1,29 @@
+.captions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1020;
+    font-size: 18px;
+    padding: 2rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    min-height: 120px;
+
+  }
+  
+  .captions.show {
+    transform: translateY(0);
+  }
+
+  /* {4️⃣ التأكد أن القائمة تظهر دائمًا على الشاشات الكبيرة} */
+
+  @media (min-width: 768px) {
+    div[position-fixed] {
+      transform: translateX(0) !important;
+    }
+  } 

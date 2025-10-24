@@ -1,12 +1,20 @@
 import './App.css';
-import ImageUploader from './ImageUploader';
 import './Style/style.css';
+import AppRoutes from './AppRoutes';
+import { BrowserRouter as Router } from "react-router-dom";
+import SideMenu from './Components/sideMenu';
+import "bootstrap-icons/font/bootstrap-icons.css";
+import TopBar from './Components/TopBar';
 
 function App() {
   return (
-    <div className="App">
-      <ImageUploader />
-    </div>
+    <Router>
+      <SideMenu />
+      <TopBar />
+
+      <AppRoutes />
+
+    </Router>
   );
 }
 
