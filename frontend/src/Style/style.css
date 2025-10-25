@@ -20,6 +20,15 @@
     transform: translateY(0);
   }
 
+  .captions-bar {
+  transition: opacity 0.6s ease-in-out;
+  opacity: 1;
+}
+
+.captions-fade {
+  opacity: 0;
+}
+
   /* {4️⃣ التأكد أن القائمة تظهر دائمًا على الشاشات الكبيرة} */
 
   @media (min-width: 768px) {

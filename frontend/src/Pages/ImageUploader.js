@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import '../Style/style.css';
+import { useCaption } from "../Components/CaptionContext"
 
 const ImageUploader = () => {
   const [image, setImage] = useState(null);
@@ -7,6 +8,7 @@ const ImageUploader = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const { setCaptionText, isVisible } = useCaption();
 
   // ✅ Test backend connection when component mounts
   useEffect(() => {
@@ -68,25 +70,74 @@ const ImageUploader = () => {
   };
 
   // ✅ Function to read the text aloud
-  const speakText = (text) => {
-    if (!text) return;
-    const synth = window.speechSynthesis;
+const speakText = (text) => {
+  if (!text) return;
+  const synth = window.speechSynthesis;
+  if (synth.speaking) synth.cancel();
 
-    // Stop any current speech
-    if (synth.speaking) {
-      synth.cancel();
+  // 1️⃣ Split text by new lines first
+  const lines = text.split(/\n+/).filter(line => line.trim() !== "");
+
+  // 2️⃣ Then split each line by sentences (. ! ?)
+  let allChunks = [];
+  for (const line of lines) {
+    const sentences = line.match(/[^.!?]+[.!?]?/g) || [line];
+    allChunks.push(...sentences);
+  }
+
+  // 3️⃣ Finally, break long sentences (>10 words) into smaller parts
+  const finalChunks = [];
+  for (const chunk of allChunks) {
+    const words = chunk.trim().split(/\s+/);
+    if (words.length > 10) {
+      for (let i = 0; i < words.length; i += 10) {
+        finalChunks.push(words.slice(i, i + 10).join(" "));
+      }
+    } else {
+      finalChunks.push(chunk.trim());
+    }
+  }
+
+  let index = 0;
+
+  const speakNext = () => {
+    if (index >= finalChunks.length) {
+      setIsSpeaking(false);
+      setCaptionText("");
+      return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = detectLanguage(text); // detect language dynamically
-    utterance.rate = 1; // normal speed
+    const current = finalChunks[index];
+    const utterance = new SpeechSynthesisUtterance(current);
+    utterance.lang = detectLanguage(current);
+    utterance.rate = 1;
     utterance.pitch = 1;
 
+    // ✅ Fade transition for smoother caption change
+    const captionEl = document.querySelector(".captions-bar");
+    if (captionEl) {
+      captionEl.classList.add("captions-fade");
+      setTimeout(() => {
+        captionEl.classList.remove("captions-fade");
+        setCaptionText(current);
+      }, 250);
+    } else {
+      setCaptionText(current);
+    }
+
     utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
+
+    utterance.onend = () => {
+      index++;
+      setTimeout(speakNext, 400); // brief pause between chunks
+    };
 
     synth.speak(utterance);
   };
+
+  speakNext();
+};
+
 
   // ✅ Try to detect the language based on characters
   const detectLanguage = (text) => {

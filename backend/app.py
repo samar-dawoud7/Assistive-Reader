@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from google.cloud import texttospeech
+from fastapi import Body
 
 from google.cloud import vision
 import io
@@ -100,6 +101,19 @@ async def read_text(data: dict):
             "audio_content": response.audio_content.decode("ISO-8859-1"),
             "status": "success"
         }
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+@app.post("/captions")
+async def captions(data: dict = Body(...)):
+    try:
+        text = data.get("text", "").strip()
+        if not text:
+            return JSONResponse(content={"error": "No text provided"}, status_code=400)
+
+        # Here you could also log or broadcast the caption if needed
+        return {"caption": text, "status": "success"}
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
