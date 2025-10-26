@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../Style/style.css";
+import '../Style/style.css';
 import { useSpeechManager } from "../Hooks/useSpeechManager";
 
 const ImageUploader = () => {
@@ -7,7 +7,7 @@ const ImageUploader = () => {
   const [extractedText, setExtractedText] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { setText } = useSpeechManager();
+  const { speakText, stopSpeaking, isSpeaking } = useSpeechManager();
 
   useEffect(() => {
     const testConnection = async () => {
@@ -49,9 +49,7 @@ const ImageUploader = () => {
       const data = await res.json();
       setExtractedText(data.text || "");
 
-      if (data.text) setText(data.text); // 👈 hook will auto-speak
-      //if (data.text) speakText(data.text); // 🔊 delegate to hook
-
+      if (data.text) speakText(data.text);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -61,14 +59,13 @@ const ImageUploader = () => {
 
   return (
     <div className="container card w-50 my-5 shadow-sm border-0 rounded">
-      <div className="p-4 mx-auto">
+      <div className="p-4 mx-auto" style={{ width: "100%", height: "100%" }}>
         <h2 className="text-center mb-2">Upload an Image</h2>
         <p className="text-center text-muted mb-3">
           Examples: Book page, street sign, product label
         </p>
 
-        <div
-          className="mb-3 border rounded d-flex align-items-center justify-content-center"
+        <div className="mb-3 border rounded d-flex align-items-center justify-content-center"
           style={{ height: "250px", backgroundColor: "#f8f9fa" }}
         >
           {image ? (
@@ -92,6 +89,16 @@ const ImageUploader = () => {
           <div className="mt-3">
             <h5>Extracted Text:</h5>
             <textarea className="form-control" rows={8} value={extractedText} readOnly />
+            <div className="d-flex justify-content-between align-items-center mt-3">
+              <button className="btn btn-success" onClick={() => speakText(extractedText)} disabled={isSpeaking}>
+                🔊 Read Text
+              </button>
+              {isSpeaking && (
+                <button className="btn btn-danger" onClick={stopSpeaking}>
+                  ⏹ Stop
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
