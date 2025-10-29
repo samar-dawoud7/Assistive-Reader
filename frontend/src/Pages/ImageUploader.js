@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "../Style/style.css";
-import { useSpeechManager } from "../Hooks/useSpeechManager";
+import { useSpeech } from "../Hooks/SpeechContext";
 
 const ImageUploader = () => {
   const [image, setImage] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { setText } = useSpeechManager();
+  const { setText } = useSpeech();
 
   useEffect(() => {
     const testConnection = async () => {

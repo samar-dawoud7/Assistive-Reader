@@ -7,18 +7,19 @@ export const useSpeechManager = () => {
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [text, setText] = useState("");
+  const [rate, setRateState] = useState(1); // ✅ rate as state
 
   const rateRef = useRef(1);
   const utterRef = useRef(null);
   const sentencesRef = useRef([]);
-  const currentIndexRef = useRef(0);// Track current sentence index
+  const currentIndexRef = useRef(0); // Track current sentence index
 
   // -------------------
   // Helpers
   // -------------------
-
   const setRate = (newRate) => {
     rateRef.current = newRate;
+    setRateState(newRate); // ✅ update state too
     if (utterRef.current) utterRef.current.rate = newRate;
   };
 
@@ -37,13 +38,9 @@ export const useSpeechManager = () => {
       const sentences = line.match(/[^.!?]+[.!?]?/g) || [line];
       for (const sentence of sentences) {
         const words = sentence.trim().split(/\s+/);
-        if (words.length > 10) {
-          for (let i = 0; i < words.length; i += 10) {
-            parts.push(words.slice(i, i + 10).join(" "));
-          }
-        } else {
+       
           parts.push(sentence.trim());
-        }
+        
       }
     }
     return parts.filter(Boolean);
@@ -52,8 +49,7 @@ export const useSpeechManager = () => {
   // -------------------
   // Speak text
   // -------------------
-
-  const speakText = (textToSpeak = text) => {
+  const speakText = (textToSpeak = text, startIndex = 0) => {
     if (!textToSpeak) return;
 
     synth.cancel(); // stop any ongoing speech
@@ -62,31 +58,32 @@ export const useSpeechManager = () => {
     if (sentences.length === 0) return;
 
     sentencesRef.current = sentences;
+    currentIndexRef.current = startIndex;
 
-    const utter = new SpeechSynthesisUtterance(textToSpeak);
-    utter.lang = detectLanguage(textToSpeak);
+    const currentSentence = sentences[startIndex];
+    const utter = new SpeechSynthesisUtterance(currentSentence);
+
+    utter.lang = detectLanguage(currentSentence);
     utter.rate = rateRef.current;
     utter.pitch = 1;
 
-    utter.onstart = () => setIsSpeaking(true);
-    utter.onend = () => {
-      setIsSpeaking(false);
-      setCaptionText("");
+    utter.onstart = () => {
+      setIsSpeaking(true);
+      setCaptionText(currentSentence);
     };
 
-    // Update captions dynamically
-    utter.onboundary = (event) => {
-      // We are updating caption per sentence
-      const charIndex = event.charIndex;
-      let cumulativeLength = 0;
-      for (let i = 0; i < sentences.length; i++) {
-        cumulativeLength += sentences[i].length + 1; // +1 for space/punctuation
-        if (charIndex < cumulativeLength) {
-          setCaptionText(sentences[i]);
-          break;
-        }
+    utter.onend = () => {
+      // Move to the next automatically
+      if (currentIndexRef.current < sentences.length - 1) {
+        currentIndexRef.current++;
+        speakText(textToSpeak, currentIndexRef.current);
+      } else {
+        setIsSpeaking(false);
+        setCaptionText("");
       }
     };
+
+    utter.onerror = () => setIsSpeaking(false);
 
     utterRef.current = utter;
     synth.speak(utter);
@@ -95,7 +92,6 @@ export const useSpeechManager = () => {
   // -------------------
   // Controls
   // -------------------
-
   const stopSpeaking = () => {
     synth.cancel();
     setIsSpeaking(false);
@@ -111,31 +107,68 @@ export const useSpeechManager = () => {
       setIsSpeaking(true);
     }
   };
+// 🧭 Move to next or previous sentence
+const speakSentenceAtIndex = (index) => {
+  const sentences = sentencesRef.current;
+  if (index < 0 || index >= sentences.length) return;
 
-   const nextSentence = () => {
+  currentIndexRef.current = index;
+  const sentence = sentences[index];
+
+  synth.cancel();
+  const utter = new SpeechSynthesisUtterance(sentence);
+  utter.lang = detectLanguage(sentence);
+  utter.rate = rateRef.current;
+  utter.pitch = 1;
+
+  utter.onstart = () => {
+    setIsSpeaking(true);
+    setCaptionText(sentence);
+  };
+  utter.onend = () => {
+    setIsSpeaking(false);
   };
 
-  const prevSentence = () => {
-  };
-
-  const handleSpeedChange = () => {
-  const newRate = rateRef.current >= 2 ? 0.75 : parseFloat((rateRef.current + 0.25).toFixed(2));
-  setRate(newRate);
-
-  // If currently speaking, restart the current sentence at new rate
-  if (utterRef.current && synth.speaking) {
-    synth.cancel();
-    speakText(currentIndexRef.current);
+  utterRef.current = utter;
+  synth.speak(utter);
+};
+const nextSentence = () => {
+  const nextIndex = currentIndexRef.current + 1;
+  if (nextIndex < sentencesRef.current.length) {
+    currentIndexRef.current = nextIndex;
+    // continue full playback from the next sentence
+    speakText(text, nextIndex);
   }
 };
 
-  // Next/Prev can now be tricky with single utterance; you may slice text manually if needed
+const prevSentence = () => {
+  const prevIndex = currentIndexRef.current - 1;
+  if (prevIndex >= 0) {
+    currentIndexRef.current = prevIndex;
+    speakText(text, prevIndex);
+  }
+};
 
-  useEffect(() => {
-    if (text) speakText(text);
-  }, [text]);
+
+  const handleSpeedChange = () => {
+    const newRate =
+      rateRef.current >= 2 ? 0.75 : parseFloat((rateRef.current + 0.25).toFixed(2));
+    setRate(newRate);
+
+    if (isSpeaking) {
+      const currentIndex = currentIndexRef.current;
+      synth.cancel();
+      speakText(text, currentIndex);
+    }
+  };
+
+ // Removed auto-speaking — text will only be spoken manually via Play button
+// useEffect(() => {
+//   if (text) speakText(text);
+// }, [text]);
 
   return {
+    text,
     setText,
     speakText,
     stopSpeaking,
@@ -144,8 +177,7 @@ export const useSpeechManager = () => {
     isSpeaking,
     nextSentence,
     prevSentence,
-    handleSpeedChange
+    handleSpeedChange,
+    rate,
   };
 };
-
-

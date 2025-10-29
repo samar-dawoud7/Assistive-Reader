@@ -6,16 +6,19 @@ import SideMenu from './Components/sideMenu';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import TopBar from './Components/TopBar';
 import { CaptionProvider } from "./Components/CaptionContext";
-
+import { SpeechProvider } from "./Hooks/SpeechContext";
 
 function App() {
   return (
     <Router>
+      
       <CaptionProvider>
+        <SpeechProvider>
 
         <SideMenu />
         <TopBar />
         <AppRoutes />
+        </SpeechProvider>
         
       </CaptionProvider>
     </Router>
