@@ -41,6 +41,9 @@ function TopBar() {
     return () => clearTimeout(timer);
   }, [isSpeaking]);
 
+  const handleStop=()=>{
+    stopSpeaking();
+  }
   
 const handlePlayPause = () => {
   if (!text || !text.trim()) {
@@ -88,6 +91,13 @@ const handlePlayPause = () => {
                     title={isSpeaking ? "Stop" : "Play"}
                     style={{ width: "45px", height: "45px" }}>
               <i className={`bi ${isSpeaking ? "bi-pause-fill" : "bi-play-fill"} fs-5 text-white`}></i>
+            </button>
+
+            <button className={`btn ${isSpeaking ? "btn-danger" : "btn-primary"} rounded-circle`}
+                    onClick={handleStop}
+                    title={isSpeaking ? "Stop" : "Play"}
+                    style={{ width: "45px", height: "45px" }}>
+              <i className={`bi bi-stop-fill fs-5 text-white`}></i>
             </button>
 
             {/* ⏭ Next */}

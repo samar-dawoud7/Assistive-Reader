@@ -14,9 +14,10 @@ export const useSpeechManager = () => {
   const utterRef = useRef(null);
   const sentencesRef = useRef([]);
   const currentIndexRef = useRef(0);
+  const currentTextRef = useRef(""); // ✅ always store latest text
 
   // -------------------
-  // ✅ Reset Function (fix)
+  // Reset Speech
   // -------------------
   const resetSpeech = () => {
     synth.cancel();
@@ -24,6 +25,7 @@ export const useSpeechManager = () => {
     setCaptionText("");
     currentIndexRef.current = 0;
     sentencesRef.current = [];
+    utterRef.current = null;
   };
 
   // -------------------
@@ -56,12 +58,18 @@ export const useSpeechManager = () => {
   };
 
   // -------------------
-  // Speak text
+  // Speak text (main)
   // -------------------
   const speakText = (textToSpeak = text, startIndex = 0) => {
     if (!textToSpeak || !textToSpeak.trim()) return;
 
-    resetSpeech(); // ✅ always reset before new playback
+    // ✅ Cancel old speech immediately before starting new
+    synth.cancel();
+    resetSpeech();
+
+    // ✅ Always store latest text for next/prev controls
+    currentTextRef.current = textToSpeak;
+    setText(textToSpeak);
 
     const sentences = processText(textToSpeak);
     if (sentences.length === 0) return;
@@ -82,6 +90,12 @@ export const useSpeechManager = () => {
     };
 
     utter.onend = () => {
+      // If user has changed the text mid-playback, stop.
+      if (currentTextRef.current !== textToSpeak) {
+        resetSpeech();
+        return;
+      }
+
       if (currentIndexRef.current < sentences.length - 1) {
         currentIndexRef.current++;
         speakText(textToSpeak, currentIndexRef.current);
@@ -105,7 +119,29 @@ export const useSpeechManager = () => {
   // -------------------
   // Controls
   // -------------------
-  const stopSpeaking = () => resetSpeech();
+// ✅ Forcefully stops speech, clears queue, and resets everything
+const stopSpeaking = () => {
+  try {
+    // Cancel ALL queued utterances immediately
+    synth.cancel();
+
+    // Double safeguard: if synth is still speaking, cancel again in a short delay
+    setTimeout(() => {
+      if (synth.speaking) synth.cancel();
+    }, 100);
+
+    // Clear all internal refs and state
+    setIsSpeaking(false);
+    setCaptionText("");
+    currentIndexRef.current = 0;
+    sentencesRef.current = [];
+    utterRef.current = null;
+  } catch (err) {
+    console.error("Error stopping speech:", err);
+  }
+};
+
+
 
   const togglePause = () => {
     if (synth.speaking && !synth.paused) {
@@ -145,16 +181,14 @@ export const useSpeechManager = () => {
   const nextSentence = () => {
     const nextIndex = currentIndexRef.current + 1;
     if (nextIndex < sentencesRef.current.length) {
-      currentIndexRef.current = nextIndex;
-      speakText(text, nextIndex);
+      speakSentenceAtIndex(nextIndex);
     }
   };
 
   const prevSentence = () => {
     const prevIndex = currentIndexRef.current - 1;
     if (prevIndex >= 0) {
-      currentIndexRef.current = prevIndex;
-      speakText(text, prevIndex);
+      speakSentenceAtIndex(prevIndex);
     }
   };
 
@@ -165,7 +199,7 @@ export const useSpeechManager = () => {
     if (isSpeaking) {
       const currentIndex = currentIndexRef.current;
       synth.cancel();
-      speakText(text, currentIndex);
+      speakText(currentTextRef.current, currentIndex);
     }
   };
 
@@ -176,7 +210,7 @@ export const useSpeechManager = () => {
     speakText,
     stopSpeaking,
     togglePause,
-    resetSpeech, // ✅ moved here correctly
+    resetSpeech,
     setRate,
     isSpeaking,
     nextSentence,

@@ -4,7 +4,7 @@ import { useSpeechManager } from "./useSpeechManager";
 const SpeechContext = createContext(null);
 
 export const SpeechProvider = ({ children }) => {
-  const speech = useSpeechManager(); // single shared instance
+  const speech = useSpeechManager();
   return (
     <SpeechContext.Provider value={speech}>
       {children}
