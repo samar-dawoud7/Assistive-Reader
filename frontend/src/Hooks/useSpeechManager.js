@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useCaption } from "../Components/CaptionContext";
 
 export const useSpeechManager = () => {
@@ -7,19 +7,31 @@ export const useSpeechManager = () => {
 
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [text, setText] = useState("");
-  const [rate, setRateState] = useState(1); // ✅ rate as state
+  const [rate, setRateState] = useState(1);
+  const [onPlaybackEnd, setOnPlaybackEnd] = useState(null);
 
   const rateRef = useRef(1);
   const utterRef = useRef(null);
   const sentencesRef = useRef([]);
-  const currentIndexRef = useRef(0); // Track current sentence index
+  const currentIndexRef = useRef(0);
+
+  // -------------------
+  // ✅ Reset Function (fix)
+  // -------------------
+  const resetSpeech = () => {
+    synth.cancel();
+    setIsSpeaking(false);
+    setCaptionText("");
+    currentIndexRef.current = 0;
+    sentencesRef.current = [];
+  };
 
   // -------------------
   // Helpers
   // -------------------
   const setRate = (newRate) => {
     rateRef.current = newRate;
-    setRateState(newRate); // ✅ update state too
+    setRateState(newRate);
     if (utterRef.current) utterRef.current.rate = newRate;
   };
 
@@ -33,14 +45,11 @@ export const useSpeechManager = () => {
   const processText = (text) => {
     if (!text) return [];
     const lines = text.split(/\n+/).filter(Boolean);
-    let parts = [];
+    const parts = [];
     for (const line of lines) {
       const sentences = line.match(/[^.!?]+[.!?]?/g) || [line];
       for (const sentence of sentences) {
-        const words = sentence.trim().split(/\s+/);
-       
-          parts.push(sentence.trim());
-        
+        parts.push(sentence.trim());
       }
     }
     return parts.filter(Boolean);
@@ -50,9 +59,9 @@ export const useSpeechManager = () => {
   // Speak text
   // -------------------
   const speakText = (textToSpeak = text, startIndex = 0) => {
-    if (!textToSpeak) return;
+    if (!textToSpeak || !textToSpeak.trim()) return;
 
-    synth.cancel(); // stop any ongoing speech
+    resetSpeech(); // ✅ always reset before new playback
 
     const sentences = processText(textToSpeak);
     if (sentences.length === 0) return;
@@ -73,17 +82,21 @@ export const useSpeechManager = () => {
     };
 
     utter.onend = () => {
-      // Move to the next automatically
       if (currentIndexRef.current < sentences.length - 1) {
         currentIndexRef.current++;
         speakText(textToSpeak, currentIndexRef.current);
       } else {
         setIsSpeaking(false);
         setCaptionText("");
+        onPlaybackEnd?.();
       }
     };
 
-    utter.onerror = () => setIsSpeaking(false);
+    utter.onerror = () => {
+      setIsSpeaking(false);
+      setCaptionText("");
+      onPlaybackEnd?.();
+    };
 
     utterRef.current = utter;
     synth.speak(utter);
@@ -92,11 +105,7 @@ export const useSpeechManager = () => {
   // -------------------
   // Controls
   // -------------------
-  const stopSpeaking = () => {
-    synth.cancel();
-    setIsSpeaking(false);
-    setCaptionText("");
-  };
+  const stopSpeaking = () => resetSpeech();
 
   const togglePause = () => {
     if (synth.speaking && !synth.paused) {
@@ -107,54 +116,52 @@ export const useSpeechManager = () => {
       setIsSpeaking(true);
     }
   };
-// 🧭 Move to next or previous sentence
-const speakSentenceAtIndex = (index) => {
-  const sentences = sentencesRef.current;
-  if (index < 0 || index >= sentences.length) return;
 
-  currentIndexRef.current = index;
-  const sentence = sentences[index];
+  const speakSentenceAtIndex = (index) => {
+    const sentences = sentencesRef.current;
+    if (index < 0 || index >= sentences.length) return;
 
-  synth.cancel();
-  const utter = new SpeechSynthesisUtterance(sentence);
-  utter.lang = detectLanguage(sentence);
-  utter.rate = rateRef.current;
-  utter.pitch = 1;
+    currentIndexRef.current = index;
+    const sentence = sentences[index];
 
-  utter.onstart = () => {
-    setIsSpeaking(true);
-    setCaptionText(sentence);
+    synth.cancel();
+    const utter = new SpeechSynthesisUtterance(sentence);
+    utter.lang = detectLanguage(sentence);
+    utter.rate = rateRef.current;
+    utter.pitch = 1;
+
+    utter.onstart = () => {
+      setIsSpeaking(true);
+      setCaptionText(sentence);
+    };
+    utter.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    utterRef.current = utter;
+    synth.speak(utter);
   };
-  utter.onend = () => {
-    setIsSpeaking(false);
+
+  const nextSentence = () => {
+    const nextIndex = currentIndexRef.current + 1;
+    if (nextIndex < sentencesRef.current.length) {
+      currentIndexRef.current = nextIndex;
+      speakText(text, nextIndex);
+    }
   };
 
-  utterRef.current = utter;
-  synth.speak(utter);
-};
-const nextSentence = () => {
-  const nextIndex = currentIndexRef.current + 1;
-  if (nextIndex < sentencesRef.current.length) {
-    currentIndexRef.current = nextIndex;
-    // continue full playback from the next sentence
-    speakText(text, nextIndex);
-  }
-};
-
-const prevSentence = () => {
-  const prevIndex = currentIndexRef.current - 1;
-  if (prevIndex >= 0) {
-    currentIndexRef.current = prevIndex;
-    speakText(text, prevIndex);
-  }
-};
-
+  const prevSentence = () => {
+    const prevIndex = currentIndexRef.current - 1;
+    if (prevIndex >= 0) {
+      currentIndexRef.current = prevIndex;
+      speakText(text, prevIndex);
+    }
+  };
 
   const handleSpeedChange = () => {
     const newRate =
       rateRef.current >= 2 ? 0.75 : parseFloat((rateRef.current + 0.25).toFixed(2));
     setRate(newRate);
-
     if (isSpeaking) {
       const currentIndex = currentIndexRef.current;
       synth.cancel();
@@ -162,22 +169,20 @@ const prevSentence = () => {
     }
   };
 
- // Removed auto-speaking — text will only be spoken manually via Play button
-// useEffect(() => {
-//   if (text) speakText(text);
-// }, [text]);
-
+  // ✅ Return everything needed
   return {
     text,
     setText,
     speakText,
     stopSpeaking,
     togglePause,
+    resetSpeech, // ✅ moved here correctly
     setRate,
     isSpeaking,
     nextSentence,
     prevSentence,
     handleSpeedChange,
+    setOnPlaybackEnd,
     rate,
   };
 };

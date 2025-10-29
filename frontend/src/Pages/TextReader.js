@@ -3,30 +3,47 @@ import { Container, Form } from "react-bootstrap";
 import { useSpeech } from "../Hooks/SpeechContext";
 
 function TextReader() {
-  const { setText, isSpeaking } = useSpeech();
+  const { setText, isSpeaking, resetSpeech  } = useSpeech();
   const [inputText, setInputText] = useState("");
+
+  const handleInputChange = (e) => {
+  resetSpeech();            // stop any ongoing speech
+  setInputText(e.target.value);
+  setText(e.target.value);
+};
 
   // Update shared text whenever the user types
   useEffect(() => {
     setText(inputText);
   }, [inputText, setText]);
 
-  return (
-    <Container className="mt-5 text-center">
-      <h2>🗣️ Text Reader (Browser Built-in)</h2>
-      <Form.Group>
-        <Form.Label>Enter or paste text below:</Form.Label>
+return (
+  <Container className="py-5 text-center">
+    <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: "700px" }}>
+      <div className="mb-4">
+        <i className="bi bi-megaphone text-primary fs-1"></i>
+        <h3 className="fw-bold mt-2">🗣️ Text Reader</h3>
+        <p className="text-muted">Type or paste text below to be read aloud</p>
+      </div>
+
+      <Form.Group className="mb-3 text-start">
+        <Form.Label className="fw-semibold">Enter or paste text below:</Form.Label>
         <Form.Control
           as="textarea"
-          rows={6}
+          rows={8}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Type something to be read"
-          disabled={isSpeaking} // optional: prevent editing while speaking
+          placeholder="Type or paste something..."
+          className="shadow-sm"
+          disabled={isSpeaking}
         />
       </Form.Group>
-    </Container>
-  );
+
+      
+    </div>
+  </Container>
+);
+
 }
 
 export default TextReader;

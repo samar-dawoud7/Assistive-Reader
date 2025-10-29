@@ -17,6 +17,8 @@ function TopBar() {
     handleSpeedChange,
     rate,
     togglePause,
+    setOnPlaybackEnd,
+    resetSpeech,
   } = useSpeech();
 
   const [speed, setSpeed] = useState(rate || 1);
@@ -27,7 +29,11 @@ function TopBar() {
   const [refreshKey, setRefreshKey] = useState(0);
 
 
- 
+ useEffect(() => {
+  setOnPlaybackEnd(() => () => {
+    playPauseRef.current = false;
+  });
+}, [setOnPlaybackEnd]);
 
   // 💡 Every time isSpeaking changes, re-render the play/pause button
   useEffect(() => {
@@ -37,17 +43,17 @@ function TopBar() {
 
   
 const handlePlayPause = () => {
-  if (!text.trim()) {
+  if (!text || !text.trim()) {
     alert("Please upload or enter text first!");
     return;
   }
 
   if (!playPauseRef.current) {
-    // First time play, start from beginning
+    // always stop anything old first
+    resetSpeech();
     speakText(text);
     playPauseRef.current = true;
   } else {
-    // Already started, just pause/resume
     togglePause();
   }
 };
