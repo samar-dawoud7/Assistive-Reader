@@ -5,6 +5,7 @@ import ImageUploader from "./Pages/ImageUploader";
 import TextReader from "./Pages/TextReader";
 import Home from "./Pages/Home";
 import About from "./Pages/About";
+import ImageReader from "./Pages/ImageReader";
 
 function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Route path="/imageuploader" element={<ImageUploader />} />
       <Route path="/text" element={<TextReader />} />
       <Route path="/About" element={<About />} />
+      <Route path="/imagereader"  element={<ImageReader />}/>
    
     </Routes>
   

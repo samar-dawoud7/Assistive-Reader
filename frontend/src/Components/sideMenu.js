@@ -64,6 +64,12 @@ function SideMenu({ children }) {
             </Link>
           </li>
           <li className="nav-item mb-1">
+            <Link to="/imagereader" className="nav-link text-dark d-flex align-items-center flex-column">
+            <i className="bi bi-image fs-5"></i>
+              {!isCollapsed && <span className="ms-2 text-center">Image Url</span>}
+            </Link>
+          </li>
+          <li className="nav-item mb-1">
             <Link to="/about" className="nav-link text-dark d-flex align-items-center flex-column">
               <i className="bi bi-info-circle fs-5"></i>
               {!isCollapsed && <span className="ms-2 text-center">About</span>}
