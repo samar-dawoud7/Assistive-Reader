@@ -18,8 +18,8 @@ function TextReader() {
   }, [inputText, setText]);
 
 return (
-  <Container className="py-5 text-center">
-    <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto" style={{ maxWidth: "700px" }}>
+  <Container className="text-center mt-5 pt-4">
+    <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto main-content" style={{ maxWidth: "700px" }}>
       <div className="mb-4">
         <i className="bi bi-megaphone text-primary fs-1"></i>
         <h3 className="fw-bold mt-2">🗣️ Text Reader</h3>

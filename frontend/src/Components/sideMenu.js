@@ -36,12 +36,11 @@ function SideMenu({ children }) {
 
       {/* Sidebar */}
       <div
-        className="bg-light border-end position-fixed top-0 start-0 p-3 vh-100"
+        className="bg-light border-end position-fixed top-0 start-0 p-3 vh-100 sidemenu"
         style={{
           width: isCollapsed ? "60px" : "150px",
           transform: isOpen || window.innerWidth >= 768 ? "translateX(0)" : "translateX(-100%)",
           transition: "all 0.3s ease",
-          zIndex: 1099,
           overflowX: "hidden",
         }}
       >
