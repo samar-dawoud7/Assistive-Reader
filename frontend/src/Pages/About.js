@@ -3,9 +3,9 @@ import { Card } from "react-bootstrap";
 
 export default function About() {
   return (
-    <div className="container mt-5">
-      <Card className="shadow-lg border-0 rounded-4">
-        <Card.Body className="p-5">
+    <div className="container about-content ">
+      <Card className="shadow-lg border-0 rounded-4 ">
+        <Card.Body className="p-5 ">
           <h1 className="fw-bold text-primary text-center mb-4">
             About Smart Reader
           </h1>

@@ -1,3 +1,6 @@
+/* body{
+  background-color: #f8f9fa;
+} */
 .captions {
     position: fixed;
     bottom: 0;
@@ -36,3 +39,39 @@
       transform: translateX(0) !important;
     }
   } 
+  /* layout.css */
+
+.sidemenu {
+  position: fixed;
+  top: 60px; /* same as topbar height */
+  left: 0;
+  height: calc(100vh - 60px);
+  z-index: 999;
+}
+
+.main-content {
+  margin-top: 60px; /* same as topbar height */
+  margin-left: 150px;/* same as sidemenu width */
+  padding: 20px;
+  padding-bottom: 70px;
+  /* background-color: #f8f9fa; */
+  min-height: calc(100vh - 60px); /* fill remaining height */
+
+
+}
+.about-content{
+  margin-left: 130px !important;
+  margin-top: 70px !important;
+  margin-right: 150px !important;
+}
+.caption {
+  position: fixed;
+  bottom: 0;
+  left: 150px; /* same as sidebar width */
+  width: calc(100% - 200px);
+  height: 90px; /* caption height */
+  /* display: flex;
+  align-items: center; */
+  padding: 0 10px;
+  z-index: 998;
+}

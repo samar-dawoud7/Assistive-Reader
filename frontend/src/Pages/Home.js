@@ -3,7 +3,7 @@ import { Container, Row, Col, Card } from "react-bootstrap";
 
 export default function Home() {
   return (
-    <div className="bg-light min-vh-100 d-flex align-items-center">
+    <div className="bg-light min-vh-100 d-flex align-items-center main-content">
       <Container className="py-5">
         {/* Header Section */}
         <div className="text-center mb-5">

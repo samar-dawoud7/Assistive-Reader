@@ -121,6 +121,20 @@ async def captions(data: dict = Body(...)):
 
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+    
+@app.post("/extract-url")
+async def extract_text_url(data: dict):
+    image_url = data.get("image_url")
+    if not image_url:
+        return JSONResponse(content={"error": "No image URL provided"}, status_code=400)
+
+    image = vision.Image()
+    image.source.image_uri = image_url
+    response = client.text_detection(image=image)
+    annotations = response.text_annotations
+    extracted_text = annotations[0].description.strip() if annotations else ""
+    return {"text": extracted_text, "status": "success"}
 
 
 

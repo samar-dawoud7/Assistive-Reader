@@ -36,12 +36,11 @@ function SideMenu({ children }) {
 
       {/* Sidebar */}
       <div
-        className="bg-light border-end position-fixed top-0 start-0 p-3 vh-100"
+        className="bg-light border-end position-fixed top-0 start-0 p-3 vh-100 sidemenu"
         style={{
           width: isCollapsed ? "60px" : "150px",
           transform: isOpen || window.innerWidth >= 768 ? "translateX(0)" : "translateX(-100%)",
           transition: "all 0.3s ease",
-          zIndex: 1099,
           overflowX: "hidden",
         }}
       >
@@ -62,6 +61,12 @@ function SideMenu({ children }) {
             <Link to="/text" className="nav-link text-dark d-flex align-items-center flex-column">
               <i className="bi bi-file-text fs-5"></i>
               {!isCollapsed && <span className="ms-2 text-center">Text Reader</span>}
+            </Link>
+          </li>
+          <li className="nav-item mb-1">
+            <Link to="/imagereader" className="nav-link text-dark d-flex align-items-center flex-column">
+            <i className="bi bi-image fs-5"></i>
+              {!isCollapsed && <span className="ms-2 text-center">Image Url</span>}
             </Link>
           </li>
           <li className="nav-item mb-1">
