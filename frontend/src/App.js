@@ -15,11 +15,11 @@ function App() {
       <CaptionProvider>
         <SpeechProvider>
 
-        <SideMenu />
-        <TopBar />
-        <AppRoutes />
+          <SideMenu />
+          <TopBar />
+          <AppRoutes />
+
         </SpeechProvider>
-        
       </CaptionProvider>
     </Router>
   );

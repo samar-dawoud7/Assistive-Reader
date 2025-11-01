@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Card, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useSpeechManager } from "../Hooks/useSpeechManager";
+import { useSpeech } from "../Hooks/SpeechContext";
 
 export default function ImageReader() {
   const [file, setFile] = useState(null);
@@ -9,63 +10,19 @@ export default function ImageReader() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const {
-    speakText,
-    stopSpeaking,
-    togglePause,
-    handleSpeedChange,
-    isSpeaking,
-    rate,
-  } = useSpeechManager();
+  const { setText, isSpeaking } = useSpeech();
+
+
+  
+  useEffect(() => {
+    setText(extractedText);
+  }, [extractedText, setText]);
+
+
 
   const backendUrl = "http://127.0.0.1:8000";
 
-  // 📤 Upload from local file
-  const handleFileUpload = async () => {
-    if (!file) {
-      setError("Please select an image file first.");
-      return;
-    }
 
-    console.log("🔹 Selected file:", file);
-
-    setError("");
-    setLoading(true);
-    setExtractedText("");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      console.log("🚀 Sending request to backend:", `${backendUrl}/extract-text`);
-
-      const response = await fetch(`${backendUrl}/extract-text`, {
-        method: "POST",
-        body: formData,
-      });
-
-      console.log("📬 Response status:", response.status);
-
-      const data = await response.json();
-      console.log("📦 Response JSON:", data);
-
-      if (data.error) throw new Error(data.error);
-
-      if (data.text) {
-        console.log("✅ Text extracted successfully!");
-        setExtractedText(data.text);
-      } else {
-        console.warn("⚠️ No text detected in image.");
-        setExtractedText("(No text detected)");
-      }
-    } catch (err) {
-      console.error("❌ Error during upload:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-      console.log("🏁 Finished upload process.");
-    }
-  };
 
   // 🌐 Extract text from image URL
   const handleUrlSubmit = async () => {

@@ -37,7 +37,7 @@ function TopBar() {
 
   // 💡 Every time isSpeaking changes, re-render the play/pause button
   useEffect(() => {
-    const timer = setTimeout(() => setRefreshKey(prev => prev + 1), 100);
+    const timer = setTimeout(() => setRefreshKey(prev => prev + 1), 50);
     return () => clearTimeout(timer);
   }, [isSpeaking]);
 

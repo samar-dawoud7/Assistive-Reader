@@ -41,8 +41,39 @@ export const useSpeechManager = () => {
     if (/[أ-ي]/.test(text)) return "ar-SA";
     if (/[א-ת]/.test(text)) return "he-IL";
     if (/[a-zA-Z]/.test(text)) return "en-US";
+     if (/[àâçéèêëîïôûùüÿñæœ]/i.test(text)) return "fr-FR";
+
+    // Spanish (ñ, á, é, í, ó, ú, ü)
+    if (/[ñáéíóúü¿¡]/i.test(text)) return "es-ES";
+
+    // German (ä, ö, ü, ß)
+    if (/[äöüß]/i.test(text)) return "de-DE";
+
+    // Russian (Cyrillic)
+    if (/[\u0400-\u04FF]/.test(text)) return "ru-RU";
+
+    // Chinese (Simplified)
+    if (/[\u4e00-\u9fff]/.test(text)) return "zh-CN";
+
+    // Japanese (Hiragana, Katakana, Kanji)
+    if (/[\u3040-\u30ff\u4e00-\u9faf]/.test(text)) return "ja-JP";
+
+    // Korean (Hangul)
+    if (/[\uac00-\ud7af]/.test(text)) return "ko-KR";
+
+    // Hindi / Devanagari
+    if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
+
+    // Italian (common accented characters)
+    if (/[àèéìíîòóùú]/i.test(text)) return "it-IT";
+
+    // Portuguese (ã, õ, ç, é, í, ó, ú)
+    if (/[ãõçéíóú]/i.test(text)) return "pt-PT";
     return "en-US";
   };
+// to add some more languages
+
+
 
   const processText = (text) => {
     if (!text) return [];
@@ -128,7 +159,7 @@ const stopSpeaking = () => {
     // Double safeguard: if synth is still speaking, cancel again in a short delay
     setTimeout(() => {
       if (synth.speaking) synth.cancel();
-    }, 100);
+    }, 30);
 
     // Clear all internal refs and state
     setIsSpeaking(false);
@@ -158,7 +189,7 @@ const stopSpeaking = () => {
     if (index < 0 || index >= sentences.length) return;
 
     currentIndexRef.current = index;
-    const sentence = sentences[index];
+    const sentence = sentences.slice(index);
 
     synth.cancel();
     const utter = new SpeechSynthesisUtterance(sentence);
@@ -181,14 +212,16 @@ const stopSpeaking = () => {
   const nextSentence = () => {
     const nextIndex = currentIndexRef.current + 1;
     if (nextIndex < sentencesRef.current.length) {
-      speakSentenceAtIndex(nextIndex);
+      
+      speakText(currentTextRef.current, nextIndex);
     }
   };
 
   const prevSentence = () => {
     const prevIndex = currentIndexRef.current - 1;
     if (prevIndex >= 0) {
-      speakSentenceAtIndex(prevIndex);
+      
+      speakText(currentTextRef.current, prevIndex);
     }
   };
 
