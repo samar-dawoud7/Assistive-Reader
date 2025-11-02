@@ -70,9 +70,7 @@ export default function About() {
           <p className="text-muted fs-5">
             Check out the GitHub repository:{" "}
             <a
-              href="https://github.com/YOUR_USERNAME/YOUR_REPO"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="https://github.com/samar-dawoud7/Assistive-Reader"
             >
             github Link </a>
           </p>
