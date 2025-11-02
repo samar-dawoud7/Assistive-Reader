@@ -7,6 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import TopBar from './Components/TopBar';
 import { CaptionProvider } from "./Components/CaptionContext";
 import { SpeechProvider } from "./Hooks/SpeechContext";
+import Sidebar from './Components/newSideMenu';
 
 function App() {
   return (
@@ -15,7 +16,8 @@ function App() {
       <CaptionProvider>
         <SpeechProvider>
 
-          <SideMenu />
+          {/* <SideMenu /> */}
+          <Sidebar />
           <TopBar />
           <AppRoutes />
 

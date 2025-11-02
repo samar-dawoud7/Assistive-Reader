@@ -64,7 +64,7 @@ const ImageUploader = () => {
   };
 
 return (
-  <div className="container py-5 d-flex justify-content-center align-items-start main-content">
+  <div className="container py-5 d-flex justify-content-center align-items-start main-content ">
     <div className="card shadow-lg border-0 rounded-4 p-4 w-100" style={{ maxWidth: "650px" }}>
       <div className="text-center mb-4">
         <i className="bi bi-image text-primary fs-1 mb-2"></i>

@@ -120,7 +120,7 @@ const extractTextFromPDF = async (file) => {
   };
 
   return (
-    <Container className="py-5 text-center">
+    <Container className="py-5 text-center main-content">
       <div
         className="card shadow-lg border-0 rounded-4 p-4 mx-auto"
         style={{ maxWidth: "700px" }}
